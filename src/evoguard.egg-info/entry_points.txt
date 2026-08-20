@@ -1,0 +1,2 @@
+[console_scripts]
+evoguard = evoguard.cli:main

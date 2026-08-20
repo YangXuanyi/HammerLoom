@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EvoGuard 运行控制台</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><span class="mark">E</span><span>EvoGuard</span><small>Agent 运行控制台</small></div>
+    <div id="active-version" class="active-version">正在加载策略版本</div>
+  </header>
+  <main>
+    <section id="overview-view">
+      <div class="page-heading">
+        <div><p class="eyebrow">运行总览</p><h1>Agent 任务控制台</h1><p class="muted">选择一次运行记录，查看模型交互、工具执行、补丁、验证、token 用量和经验提炼结果。</p></div>
+      </div>
+      <section id="stats" class="stats"></section>
+      <section class="panel">
+        <div class="panel-title"><div><p class="eyebrow">运行记录</p><h2>当前与历史任务</h2></div><span id="run-count" class="badge"></span></div>
+        <div id="runs" class="run-list"></div>
+      </section>
+    </section>
+
+    <section id="detail-view" hidden>
+      <button id="back-button" class="back-button" type="button">返回任务列表</button>
+      <div id="run-detail"></div>
+    </section>
+  </main>
+  <template id="empty"><p class="empty">暂无可展示的数据。请先运行 Agent 以收集任务证据。</p></template>
+  <script src="/app.js"></script>
+</body>
+</html>

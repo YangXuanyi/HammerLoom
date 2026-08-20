@@ -114,7 +114,7 @@ async function initialize() {
     if (!response.ok) throw new Error("无法加载控制台数据");
     renderOverview(await response.json());
   } catch (error) {
-    document.getElementById("runs").innerHTML = `<p class="error">无法加载 EvoGuard 本地数据。</p>`;
+    document.getElementById("runs").innerHTML = `<p class="error">无法加载 HammerLoom 本地数据。</p>`;
   }
 }
 

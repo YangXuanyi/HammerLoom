@@ -3,18 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 
-from .service import EvoGuard
+from .service import HammerLoom
 
 
-def create_app(database_path: str = ".evoguard/evoguard.db"):
+def create_app(database_path: str = ".hammerloom/hammerloom.db"):
     try:
         from fastapi import FastAPI, HTTPException
         from fastapi.responses import FileResponse
     except ImportError as exc:
         raise RuntimeError("Studio requires FastAPI and uvicorn. Run: python -m pip install -e .") from exc
 
-    guard = EvoGuard(database_path)
-    app = FastAPI(title="EvoGuard Studio", version="0.1.0")
+    guard = HammerLoom(database_path)
+    app = FastAPI(title="HammerLoom Studio", version="0.1.0")
     studio_dir = Path(__file__).parent / "studio"
 
     @app.get("/api/dashboard")

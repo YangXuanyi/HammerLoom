@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from .service import EvoGuard
+from .service import HammerLoom
 
 
-def seed_demo(guard: EvoGuard) -> str:
+def seed_demo(guard: HammerLoom) -> str:
     if guard.store.all("runs"):
         return "Demo data already exists."
     first = guard.start_run("issue-17", "Fix migration schema mismatch", "migration")

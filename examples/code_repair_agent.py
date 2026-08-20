@@ -1,7 +1,7 @@
 """通用代码修复Agent。
 
 该示例中的 Agent 在指定工作目录内完成检查、诊断、修改和验证，并将每次
-模型决策、工具调用、补丁和验证结果以 AgentEvent 暴露给 EvoGuard。
+模型决策、工具调用、补丁和验证结果以 AgentEvent 暴露给 HammerLoom。
 """
 
 from __future__ import annotations

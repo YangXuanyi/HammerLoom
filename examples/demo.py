@@ -1,4 +1,4 @@
-"""运行代码修复 Agent，记录 EvoGuard 证据并启动 Studio 可视化。"""
+"""运行代码修复 Agent，记录 HammerLoom 证据并启动 Studio 可视化。"""
 
 from __future__ import annotations
 
@@ -15,12 +15,12 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from evoguard import EvoGuard
-from evoguard.api import create_app
+from hammerloom import HammerLoom
+from hammerloom.api import create_app
 from code_repair_agent import AgentEvent, create_agent
 
-DATABASE_PATH = PROJECT_ROOT / ".evoguard" / "qwen-agent-demo.db"
-TRAJECTORY_DIR = PROJECT_ROOT / ".evoguard" / "agent-trajectories"
+DATABASE_PATH = PROJECT_ROOT / ".hammerloom" / "qwen-agent-demo.db"
+TRAJECTORY_DIR = PROJECT_ROOT / ".hammerloom" / "agent-trajectories"
 TARGET_PROJECT_DIR = Path(__file__).resolve().parent / "pricing_repair_target"
 STUDIO_HOST = "127.0.0.1"
 STUDIO_PORT = 8766
@@ -31,8 +31,8 @@ def event_payload(index: int, event: AgentEvent) -> Dict[str, Any]:
     return {"step": index, **asdict(event)}
 
 
-def record_to_evoguard(run: Any, event: AgentEvent) -> None:
-    """将 Agent 事件映射为 EvoGuard 的模型、工具、补丁或验证证据。"""
+def record_to_hammerloom(run: Any, event: AgentEvent) -> None:
+    """将 Agent 事件映射为 HammerLoom 的模型、工具、补丁或验证证据。"""
     if event.kind == "model":
         run.model(
             event.name,
@@ -67,8 +67,8 @@ def save_trajectory(run_id: str, events: List[Dict[str, Any]], result: Dict[str,
 
 
 def run_agent() -> None:
-    """运行 Agent 并将其完整执行证据写入 EvoGuard 和轨迹文件。"""
-    guard = EvoGuard(str(DATABASE_PATH), repo_scope="repo:pricing-repair-target")
+    """运行 Agent 并将其完整执行证据写入 HammerLoom 和轨迹文件。"""
+    guard = HammerLoom(str(DATABASE_PATH), repo_scope="repo:pricing-repair-target")
     run = guard.start_run(
         task_id="issue-pricing-1",
         task_title="修复当前工作目录中的代码问题",
@@ -78,8 +78,8 @@ def run_agent() -> None:
     result_payload: Dict[str, Any] = {"success": False, "summary": "Agent 尚未执行。"}
 
     def on_event(event: AgentEvent) -> None:
-        """收集每个 Agent 事件，供 EvoGuard 和本地轨迹文件使用。"""
-        record_to_evoguard(run, event)
+        """收集每个 Agent 事件，供 HammerLoom 和本地轨迹文件使用。"""
+        record_to_hammerloom(run, event)
         trajectory.append(event_payload(len(trajectory) + 1, event))
 
     try:
@@ -106,9 +106,9 @@ def run_agent() -> None:
 
 
 def run_studio() -> None:
-    """在本地启动 EvoGuard Studio，展示本次及历史运行数据。"""
+    """在本地启动 HammerLoom Studio，展示本次及历史运行数据。"""
     url = f"http://{STUDIO_HOST}:{STUDIO_PORT}"
-    print(f"EvoGuard Studio 已启动，请在浏览器打开：{url}")
+    print(f"HammerLoom Studio 已启动，请在浏览器打开：{url}")
     app = create_app(str(DATABASE_PATH))
     uvicorn.run(app, host=STUDIO_HOST, port=STUDIO_PORT, log_level="critical", access_log=False)
 

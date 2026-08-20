@@ -6,10 +6,10 @@ from html import escape
 from pathlib import Path
 from typing import Any, Dict
 
-from .service import EvoGuard
+from .service import HammerLoom
 
 
-def export_report(guard: EvoGuard, output_dir: str) -> Dict[str, str]:
+def export_report(guard: HammerLoom, output_dir: str) -> Dict[str, str]:
     target = Path(output_dir)
     target.mkdir(parents=True, exist_ok=True)
     data = guard.dashboard()
@@ -28,9 +28,9 @@ def export_report(guard: EvoGuard, output_dir: str) -> Dict[str, str]:
         for item in data["decisions"]
     ) or "<tr><td colspan='3'>No decisions recorded.</td></tr>"
     html_path.write_text(
-        "<!doctype html><html><head><meta charset='utf-8'><title>EvoGuard Report</title>"
+        "<!doctype html><html><head><meta charset='utf-8'><title>HammerLoom Report</title>"
         "<style>body{font:15px system-ui;margin:48px;color:#15202b}table{border-collapse:collapse;width:100%}th,td{padding:10px;border-bottom:1px solid #d8e0e4;text-align:left}h1{color:#0b655f}.stat{display:inline-block;margin-right:38px}</style>"
-        "</head><body><h1>EvoGuard evolution report</h1>"
+        "</head><body><h1>HammerLoom evolution report</h1>"
         f"<p class='stat'>Active policy: <b>{escape(summary['active_version'])}</b></p><p class='stat'>Run success: <b>{summary['success_rate']:.0%}</b></p><p class='stat'>Active Skills: <b>{summary['skills']}</b></p>"
         "<h2>Promotion decisions</h2><table><thead><tr><th>Candidate</th><th>Verdict</th><th>Evidence</th></tr></thead><tbody>"
         f"{decision_rows}</tbody></table></body></html>", encoding="utf-8")

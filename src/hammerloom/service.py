@@ -11,7 +11,7 @@ from .store import Store
 
 
 class RunRecorder:
-    def __init__(self, guard: "EvoGuard", run: Run):
+    def __init__(self, guard: "HammerLoom", run: Run):
         self.guard = guard
         self.run = run
 
@@ -48,8 +48,8 @@ class RunRecorder:
         return self.run
 
 
-class EvoGuard:
-    def __init__(self, database_path: str = ".evoguard/evoguard.db", repo_scope: str = "repo:local"):
+class HammerLoom:
+    def __init__(self, database_path: str = ".hammerloom/hammerloom.db", repo_scope: str = "repo:local"):
         self.store = Store(database_path)
         self.repo_scope = repo_scope
         self.compiler = ExperienceCompiler()

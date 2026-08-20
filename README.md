@@ -1,14 +1,10 @@
 # HammerLoom
-Given tasks and a base model, forge a self-evolving agent.
 HammerLoom是一个面向agent自进化的智能框架。针对一个需要搭建本地模型驱动的agent业务场景，框架会通过自动运行任务，迭代agent提示词、创建tool、生成skill、微调基座模型、优化agent编排。在一段时间后，自动成长为完全胜任该场景的专家级agent。重要的是，整个过程全部自动化实现，何时迭代，何时微调都由框架自己决定。
-
-> **背景图生图 Prompt**
->
-> `A cinematic ultra-wide background for an open-source AI engineering project called HammerLoom. Depict a self-evolving software agent as an abstract, precise intelligence system rather than a humanoid robot: a dark graphite workspace with a central luminous weave of structured execution traces, modular tool nodes, and an evolving agent workflow graph. Three clearly differentiated but unlabeled layers flow from left to right: runtime context and reusable skills as compact amber data threads; controlled model-parameter learning as a restrained teal neural lattice; agent architecture and multi-agent orchestration as a clean green-blue topology of connected modules. Around the evolution loop, show subtle verification gates, evidence links, regression test paths, sandbox boundaries, version checkpoints, and rollback branches, conveying safe, auditable, evidence-driven self-improvement. The system should feel technical, disciplined, and trustworthy, with crisp thin lines, high information density, subtle depth, restrained glow, dark charcoal background with teal, amber, and green accents. Keep the center and upper-left visually calm for README title overlay. No text, no letters, no logos, no people, no humanoid robots, no neon cyberpunk city, no floating holographic UI panels, no purple gradient, no clutter. Premium technical illustration, 21:9 aspect ratio.`
+> Given tasks and a base model, forge a self-evolving agent.
 
 ## Agent 三类受控进化
 ### 1 运行时 Context 与 Skill 进化
--当前方案及问题： 现有agent自进化的做法是摘要成功轨迹收入经验库、按照相似度检索经验库调用成功经验。但是这种做法存在3个问题：1.相似任务不一定适用的经验被错误复用；2.偶然成功或过期经验污染经验库；3.无法确认经验是否真正提升成功率，是否造成旧任务退化或产生一些用户无法承受的额外成本。
+- 当前方案及问题： 现有agent自进化的做法是摘要成功轨迹收入经验库、按照相似度检索经验库调用成功经验。但是这种做法存在3个问题：1.相似任务不一定适用的经验被错误复用；2.偶然成功或过期经验污染经验库；3.无法确认经验是否真正提升成功率，是否造成旧任务退化或产生一些用户无法承受的额外成本。
 - 我们的解决方案：将每次轨迹先编译为带有适用条件、来源证据、验证器和失效条件的经验候选；在新任务、历史回归任务、OOD任务和安全/成本约束下进行影子评测，只有确认收益且无明显退化的候选才晋升为长期经验，并支持后续废弃与回滚。
 
 ### 2 模型参数进化（SFT / RL）
@@ -17,10 +13,26 @@ HammerLoom是一个面向agent自进化的智能框架。针对一个需要搭�
 - 我们的解决方案：不将“成功/失败轨迹”直接等同于训练样本或奖励，而是先由阶段一的验证器把轨迹分解为可复现的任务结果、步骤级证据、失败归因和适用条件；SFT只蒸馏跨任务稳定有效的决策片段及其上下文，RL则以任务结果为锚，结合步骤验证和反事实对比构造可归因的过程奖励，并将无法解释的奖励增益隔离。
 
 
-### Agent 架构拓扑与编排进化
+### 3 Agent 架构拓扑与编排进化
 针对跨任务等问题，框架将通过实验锁定最优agent编排策略，生成一个适用于当前任务的agent结构
 - 当前方案及问题：现有ADAS、AFlow、AgentSquare等方法将Agent拓扑、角色和工作流作为搜索空间，通过整条工作流的最终任务分数选择候选。根本问题在于，工作流的最终成败无法归因到具体的角色、节点、通信边或控制流：一次提升可能来自更强模型、更多采样或偶然工具状态，而非新增的规划器、审查器或协作链路；因此搜索容易在有限验证集上堆叠冗余调用，学到不能迁移的“评测专用拓扑”。同时，拓扑空间随角色、工具和通信方式组合爆炸，离线搜索成本高；即使离线最优结构，也未必能在不同任务难度、上下文状态和延迟/token预算下持续最优。多Agent场景还会出现无效通信、循环委派和局部目标与全局目标脱节，单看成功率无法暴露这些问题。
 - 我们的解决方案：不直接从全量拓扑中搜索“最高分工作流”，而是先依据阶段一、二积累的失败簇和步骤级证据诊断瓶颈，再提出带有适用任务特征、预期作用、资源上限和可验证退出条件的最小编排变更候选，例如增加校验节点、调整工具路由、并行化独立子任务或删除冗余协作边。对候选进行全面评测，只有在任务簇与历史回归任务上均确认净收益的结构才晋升。
 
+## 开发进展
+### 当前已完成
+- 已实现 HammerLoom 本地控制平面：使用 SQLite 持久化运行记录、Skill、策略版本、候选和晋升决策；首次初始化会创建 `v0` 基线策略。
+- 已实现运行证据采集：可记录模型调用、工具调用、补丁和验证事件，并汇总 token、耗时、变更文件和任务结果。
+- 已实现成功轨迹到经验候选的编译：仅允许带有验证器的成功运行生成 Skill；候选包含适用范围、触发条件、操作步骤、证据运行、验证命令、置信度和失效条件。
+- 已实现确定性晋升门禁：针对当前任务成功率、历史回归退化、OOD 成功率、token 增量和安全违规数给出 `promoted`、`manual_review` 或 `rejected` 决策；晋升后创建新的策略版本，并支持按版本回滚。
+- 已实现本地可视化与报告接口：Studio 提供运行、候选、Skill、决策和版本数据查看，并提供版本回滚接口；CLI 可导出 JSON、CSV 和静态 HTML 报告。
 
+### 已接通的端到端示例
+- `examples/code_repair_agent.py` 提供基于 Qwen 兼容接口的受控代码修复 Agent，限制在指定工作目录内执行文件浏览、文本搜索、读取、受限验证命令和精确补丁操作。
+- Agent 采用有限步 ReAct 循环：先获取真实测试结果，再诊断和修改，且只有最近一次测试通过时才允许完成任务。
+- `examples/demo.py` 已将 Agent 事件映射到 HammerLoom：执行轨迹写入 `.hammerloom/qwen-agent-demo.db`，完整事件与最终结果另存为 `.hammerloom/agent-trajectories/<run_id>.json`；成功运行会继续编译经验候选并执行晋升评估。
+- 当前演示入口默认启动 HammerLoom Studio，访问地址为 `http://127.0.0.1:8766`；取消 `run_agent()` 前的注释后可先执行一次真实修复任务再启动 Studio。
 
+### 下一步计划
+- 当前 Skill 编译与晋升门禁已形成可运行原型，但示例中的评测指标仍可由调用方传入，默认值用于演示；尚未接入真实的新任务、历史回归和 OOD 批量评测执行器。
+- 当前落地范围聚焦运行时 Context 与 Skill 的受控演进。SFT/RL 参数更新、跨任务训练数据构造，以及 Agent 拓扑搜索和自动编排变更尚未实现。
+- 下一阶段将补齐真实评测集执行、候选影子评测、基于证据的失败归因和 Skill 检索/复用闭环，再将可靠证据扩展到模型参数与编排策略演进。

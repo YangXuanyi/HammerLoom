@@ -1,0 +1,2 @@
+[console_scripts]
+tool_sandbox = tool_sandbox.cli:main

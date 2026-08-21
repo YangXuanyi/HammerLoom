@@ -27,9 +27,9 @@ HammerLoom是一个面向agent自进化的智能框架。针对一个需要搭�
 - 已实现本地可视化与报告接口：Studio 提供运行、候选、Skill、决策和版本数据查看，并提供版本回滚接口；CLI 可导出 JSON、CSV 和静态 HTML 报告。
 
 ### 已接通的端到端示例
-- `examples/code_repair_agent.py` 提供基于 Qwen 兼容接口的受控代码修复 Agent，限制在指定工作目录内执行文件浏览、文本搜索、读取、受限验证命令和精确补丁操作。
+- `examples/CodeRepair/code_repair_agent.py` 提供基于 Qwen 兼容接口的受控代码修复 Agent，限制在指定工作目录内执行文件浏览、文本搜索、读取、受限验证命令和精确补丁操作。
 - Agent 采用有限步 ReAct 循环：先获取真实测试结果，再诊断和修改，且只有最近一次测试通过时才允许完成任务。
-- `examples/demo.py` 已将 Agent 事件映射到 HammerLoom：执行轨迹写入 `.hammerloom/qwen-agent-demo.db`，完整事件与最终结果另存为 `.hammerloom/agent-trajectories/<run_id>.json`；成功运行会继续编译经验候选并执行晋升评估。
+- `examples/CodeRepair/demo.py` 已将 Agent 事件映射到 HammerLoom，目标项目位于 `examples/CodeRepair/pricing_repair_target`：执行轨迹写入 `.hammerloom/qwen-agent-demo.db`，完整事件与最终结果另存为 `.hammerloom/agent-trajectories/<run_id>.json`；成功运行会继续编译经验候选并执行晋升评估。
 - 当前演示入口默认启动 HammerLoom Studio，访问地址为 `http://127.0.0.1:8766`；取消 `run_agent()` 前的注释后可先执行一次真实修复任务再启动 Studio。
 
 ### 下一步计划

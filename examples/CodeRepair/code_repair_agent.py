@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import difflib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -305,25 +306,35 @@ class CodeRepairAgent:
         return RepairResult(False, "ReAct 循环超过最大步数，停止自动修复。", diagnosis, patch, self.events)
 
 
-def load_llm_config(config_path: Optional[Path] = None) -> Dict[str, object]:
-    """读取并校验 LLM 配置文件中的连接与生成参数。"""
-    path = config_path or Path(__file__).parent / "agent_config.json"
-    try:
-        config = json.loads(path.read_text(encoding="utf-8"))["llm"]
-    except (FileNotFoundError, KeyError, json.JSONDecodeError) as exc:
-        raise RuntimeError(f"无法读取 LLM 配置文件: {path}") from exc
-    if not config.get("api_key") or config["api_key"] == "请填入你的 DashScope API Key":
-        raise RuntimeError(f"请先在 {path} 的 llm.api_key 中填写 API Key。")
-    return config
+def load_env() -> None:
+    """加载 examples/.env 中尚未设置的环境变量。"""
+    for line in (Path(__file__).resolve().parents[1] / ".env").read_text(encoding="utf-8").splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
+
+def load_llm_config() -> Dict[str, object]:
+    """读取并校验 examples/.env 中的 CodeRepair 连接配置。"""
+    load_env()
+    api_key = os.environ.get("CODE_REPAIR_API_KEY", "")
+    base_url = os.environ.get("CODE_REPAIR_BASE_URL", "")
+    model = os.environ.get("CODE_REPAIR_MODEL", "")
+    if not api_key or api_key.startswith("请填入"):
+        raise RuntimeError("请先在 examples/.env 中填写 CODE_REPAIR_API_KEY。")
+    if not base_url:
+        raise RuntimeError("请先在 examples/.env 中填写 CODE_REPAIR_BASE_URL。")
+    if not model:
+        raise RuntimeError("请先在 examples/.env 中填写 CODE_REPAIR_MODEL。")
+    return {"api_key": api_key, "base_url": base_url, "model": model, "temperature": 0.2, "max_tokens": 500}
 
 
 def create_agent(
     target_dir: Optional[Path] = None,
     on_event: Optional[Callable[[AgentEvent], None]] = None,
-    config_path: Optional[Path] = None,
 ) -> CodeRepairAgent:
-    """根据配置创建绑定目标目录的通用代码修复 Agent。"""
-    config = load_llm_config(config_path)
+    """根据环境变量配置创建绑定目标目录的通用代码修复 Agent。"""
+    config = load_llm_config()
     target = target_dir or Path(__file__).parent / "pricing_repair_target"
     llm = QwenLLM(
         api_key=str(config["api_key"]),

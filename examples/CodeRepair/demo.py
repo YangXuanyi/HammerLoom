@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 
 import uvicorn
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -21,7 +21,7 @@ from code_repair_agent import AgentEvent, create_agent
 
 DATABASE_PATH = PROJECT_ROOT / ".hammerloom" / "qwen-agent-demo.db"
 TRAJECTORY_DIR = PROJECT_ROOT / ".hammerloom" / "agent-trajectories"
-TARGET_PROJECT_DIR = Path(__file__).resolve().parent / "pricing_repair_target"
+TARGET_PROJECT_DIR = PROJECT_ROOT / "examples" / "CodeRepair" / "pricing_repair_target"
 STUDIO_HOST = "127.0.0.1"
 STUDIO_PORT = 8766
 
